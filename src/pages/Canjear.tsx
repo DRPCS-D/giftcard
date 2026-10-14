@@ -65,6 +65,7 @@ export default function Canjear() {
       return
     }
     setCanjeada(true)
+    setRes({ ...res, estado: 'USADA' })
     void sincronizar()
   }
 

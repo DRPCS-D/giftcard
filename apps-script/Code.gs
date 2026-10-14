@@ -265,9 +265,8 @@ function handleListarGiftCards_(body) {
     }
   }
 
-  giftcards.sort(function (a, b) {
-    return (b.fechaEmision + b.id) < (a.fechaEmision + a.id) ? -1 : 1;
-  });
+  // Las filas se agregan en orden cronológico: la última es la más nueva.
+  giftcards.reverse();
   return jsonOut_({ ok: true, giftcards: giftcards });
 }
 

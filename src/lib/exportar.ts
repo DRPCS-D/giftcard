@@ -18,13 +18,14 @@ export async function descargarPng(nodo: HTMLElement, codigo: string): Promise<v
 }
 
 export async function descargarPdf(nodo: HTMLElement, codigo: string): Promise<void> {
-  const [{ toPng }, { jsPDF }] = await Promise.all([import('html-to-image'), import('jspdf')])
-  const png = await toPng(nodo, OPCIONES)
+  const [{ toJpeg }, { jsPDF }] = await Promise.all([import('html-to-image'), import('jspdf')])
+  // JPEG en vez de PNG: el degradado de la tarjeta pesaba ~8 MB sin comprimir.
+  const img = await toJpeg(nodo, { ...OPCIONES, pixelRatio: 2, quality: 0.95 })
   // Hoja A4 horizontal con la tarjeta centrada arriba.
   const pdf = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' })
   const ancho = 200
   const alto = (ancho * ALTO_TARJETA) / ANCHO_TARJETA
-  pdf.addImage(png, 'PNG', (297 - ancho) / 2, 20, ancho, alto)
+  pdf.addImage(img, 'JPEG', (297 - ancho) / 2, 20, ancho, alto)
   pdf.save(`giftcard-${codigo}.pdf`)
 }
 
