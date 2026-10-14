@@ -9,7 +9,7 @@ y PWA heredados de `gestor-tareas`; funcionalidad de negocio del sistema anterio
 | Rol | Puede |
 |---|---|
 | `admin` | Todo: usuarios, sucursales, todas las tarjetas. |
-| `gerente` | Emitir, anular y reenviar tarjetas de **su** sucursal; también canjear. |
+| `gerente` | Ver **todas** las tarjetas, emitir, y anular/reenviar solo las de **su** sucursal; también canjear. |
 | `cajero` | Consultar y canjear (con escaneo QR). Queda registrado quién y en qué sucursal. |
 
 ## Funciones

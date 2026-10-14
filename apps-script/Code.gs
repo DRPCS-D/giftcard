@@ -27,7 +27,7 @@
  *
  * Roles:
  *   admin    control total (usuarios, sucursales, todas las tarjetas).
- *   gerente  emite, anula y reenvía tarjetas de SU sucursal; también canjea.
+ *   gerente  ve todas las tarjetas, emite, y anula/reenvía solo las de SU sucursal; también canjea.
  *   cajero   solo consulta y canjea.
  *
  * Seguridad: cada acción valida usuario y contraseña en el servidor (las
@@ -230,7 +230,7 @@ function constanteIgual_(a, b) {
 
 // ---------- Gift cards ----------
 
-/** Admin ve todas; el gerente solo las de su sucursal. El cajero no lista. */
+/** Admin y gerente ven todas las tarjetas (se canjean en cualquier sucursal). El cajero no lista. */
 function handleListarGiftCards_(body) {
   var user = requireGestion_(body);
   var sheet = getSheet_(SHEET_GIFTCARDS);
@@ -246,7 +246,6 @@ function handleListarGiftCards_(body) {
       gc.estado = 'VENCIDA';
       cambios.push(i + 1);
     }
-    if (user.rol === 'gerente' && user.sucursales.indexOf(gc.sucursalId) === -1) continue;
     giftcards.push(gc);
   }
 

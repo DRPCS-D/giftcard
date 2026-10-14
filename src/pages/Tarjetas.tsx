@@ -19,7 +19,7 @@ import { exportarCsv } from '@/lib/csv'
 import { ESTADOS_GIFTCARD, ESTADO_LABEL, type EstadoGiftCard, type GiftCard } from '@/lib/tipos'
 
 export default function Tarjetas() {
-  const { puedeGestionar } = useAuth()
+  const { puedeGestionar, esAdmin, sucursales: misSucursales } = useAuth()
   const navigate = useNavigate()
   const { data, loading, error, refetch } = useGiftCards(puedeGestionar)
   const { nombres: nombreSucursal } = useSucursales()
@@ -54,6 +54,8 @@ export default function Tarjetas() {
 
   // El detalle se relee de la lista para reflejar cambios (anulación) al instante.
   const actual = detalle ? (data.find((g) => g.id === detalle.id) ?? detalle) : null
+  // El gerente ve todas, pero solo opera (anular/reenviar) sobre las de su sucursal.
+  const puedeOperar = actual !== null && (esAdmin || misSucursales.includes(actual.sucursalId))
 
   return (
     <div>
@@ -85,7 +87,7 @@ export default function Tarjetas() {
       </div>
 
       {loading ? (
-        <TableSkeleton columnas={[18, 22, 22, 14, 14, 10]} />
+        <TableSkeleton columnas={[16, 20, 18, 14, 12, 12, 8]} />
       ) : error ? (
         <ErrorBox mensaje={error} />
       ) : filtradas.length === 0 ? (
@@ -99,6 +101,7 @@ export default function Tarjetas() {
                   <th className="px-4 py-2.5 font-medium">Código</th>
                   <th className="px-4 py-2.5 font-medium">Destinatario</th>
                   <th className="px-4 py-2.5 font-medium">Comprador</th>
+                  <th className="px-4 py-2.5 font-medium">Sucursal</th>
                   <th className="px-4 py-2.5 text-right font-medium">Monto</th>
                   <th className="px-4 py-2.5 font-medium">Vence</th>
                   <th className="px-4 py-2.5 font-medium">Estado</th>
@@ -121,6 +124,7 @@ export default function Tarjetas() {
                     <td className="tabular px-4 py-2.5 font-mono text-xs font-medium text-foreground">{g.codigo}</td>
                     <td className="px-4 py-2.5 text-foreground">{g.destinatario}</td>
                     <td className="px-4 py-2.5 text-muted-foreground">{g.comprador}</td>
+                    <td className="px-4 py-2.5 text-muted-foreground">{nombreSucursal.get(g.sucursalId) ?? '—'}</td>
                     <td className="tabular px-4 py-2.5 text-right text-foreground">{formatoGs(g.monto)}</td>
                     <td className="tabular px-4 py-2.5 text-muted-foreground">{fechaCorta(g.fechaVencimiento)}</td>
                     <td className="px-4 py-2.5">
@@ -147,7 +151,7 @@ export default function Tarjetas() {
       >
         {actual && (
           <div className="space-y-5">
-            <TarjetaAcciones gc={actual} puedeReenviar />
+            <TarjetaAcciones gc={actual} puedeReenviar={puedeOperar} />
 
             <dl className="grid gap-x-6 gap-y-2 text-sm sm:grid-cols-2">
               <Dato k="Estado" v={<BadgeEstado estado={actual.estado} />} />
@@ -165,6 +169,7 @@ export default function Tarjetas() {
             </dl>
 
             {actual.estado === 'ACTIVA' &&
+              puedeOperar &&
               (anulando ? (
                 <div className="space-y-2 rounded-md border border-destructive/30 bg-destructive/5 p-3">
                   <Field label="Motivo de la anulación">
